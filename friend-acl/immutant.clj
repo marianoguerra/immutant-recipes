@@ -11,7 +11,9 @@
             [ring.middleware.params :as ring-params]
             [ring.middleware.keyword-params :as ring-keyword-params]
             [ring.middleware.file :as ring-file]
+            [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.session :as ring-session]
+            [ring.util.response :as response]
             [immutant.web :as web]))
 
 (def users {"root" {:username "root"
@@ -26,14 +28,19 @@
       :headers {"Content-Type" "application/json"}
       :body "\"unauthorized\""})
 
-
 (defn not-found [request]
   {:status 404
    :header {"Content-Type" "text/plain"}
    :body "file not found"})
 
 (defn logout [request]
-  (redirect "../s/login.html"))
+  (redirect "../api/login"))
+
+(defn serve-file [file-path]
+    (fn [request]
+      (or
+        (response/file-response file-path)
+        (not-found request))))
 
 (defn json-response [data & [status]]
     {:status (or status 200)
@@ -41,7 +48,7 @@
         :body (json-str data)})
 
 (defn login-failed [request]
-  (redirect "/friend-acl/s/login.html"))
+  (redirect "/friend-acl/api/login"))
 
 (defn ping [request]
   (json-response "pong"))
@@ -50,11 +57,15 @@
   (json-response {:auth (friend/current-authentication) :id (friend/identity request)}))
 
 (def app (router
-  [(GET "/ping" ping)
-   (GET "/logout" (friend/logout logout))
-   (GET "/auth" current-authentication)
-   (GET "/user-only-ping" (friend/wrap-authorize ping [::user]))
-   (GET "/admin-only-ping" (friend/wrap-authorize ping [::admin]))]))
+  [(GET "/api/ping" ping)
+   (GET "/api/login" (ring-file-info/wrap-file-info (serve-file "public/s/login.html")))
+   (GET "/api/logout" (friend/logout logout))
+   (GET "/api/auth" current-authentication)
+   (GET "/api/user-only-ping" (friend/wrap-authorize ping [::user]))
+   (GET "/api/admin-only-ping" (friend/wrap-authorize ping [::admin]))
+   (GET "/s/*" (-> not-found
+                   (ring-file/wrap-file "public/s/")
+                   (ring-file-info/wrap-file-info)))]))
 
 (def secure-app (-> app
   (friend/authenticate
@@ -68,5 +79,4 @@
   (ring-params/wrap-params)
   (ring-session/wrap-session)))
 
-(web/start "/api/" secure-app)
-(web/start "/s/" (ring-file/wrap-file not-found "public/s/"))
+(web/start "/" secure-app)

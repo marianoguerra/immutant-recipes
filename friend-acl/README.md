@@ -10,7 +10,7 @@ it also uses ring-router for routing.
 
 clone the project, deploy it with "lein immutant deploy"
 
-visit http://localhost:8080/friend-acl/s/login.html
+visit http://localhost:8080/friend-acl/api/login
 
 login with user "jane" password "user\_password" or "root" and "admin\_password"
 
@@ -30,5 +30,5 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 some things I discovered while making the example
 
-* wrap-session and wrap-params are required on the app to make friend work
+* wrap-session and wrap-keyword-params are required on the app to make friend work
 * wrap-authorize requires a seq of roles
