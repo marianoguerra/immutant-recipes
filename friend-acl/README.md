@@ -2,6 +2,8 @@
 
 an immutant project to show how to integrate friend for authentication/authorization
 
+it uses the builtin workflow interactive-form that processes a web form via POST
+
 it also uses ring-router for routing.
 
 ## Usage
@@ -29,5 +31,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 some things I discovered while making the example
 
 * wrap-session and wrap-params are required on the app to make friend work
-* interactive-form doesn't work, this may be because of wrap-params setting the keys as strings?
 * wrap-authorize requires a seq of roles
