@@ -1,6 +1,5 @@
 (ns friend-acl.init
   (:use
-[cemerick.friend.util :only (gets)]
     [ring.util.response :only (redirect)]
     ring-router.core
     [clojure.data.json :only (read-json json-str)])

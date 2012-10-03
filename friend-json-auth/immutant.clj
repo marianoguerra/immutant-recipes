@@ -1,16 +1,17 @@
 (ns friend-json-auth.init
   (:use
-    [cemerick.friend.util :only (gets)]
     [ring.util.response :only (redirect)]
+    [cemerick.friend.util :only (gets)]
     ring-router.core
     [clojure.data.json :only (read-json json-str)])
 
   (:require [cemerick.friend :as friend]
             (cemerick.friend [workflows :as workflows]
                              [credentials :as creds])
-            [ring.middleware.params :as ring-params]
             [ring.middleware.file :as ring-file]
+            [ring.middleware.file-info :as ring-file-info]
             [ring.middleware.session :as ring-session]
+            [ring.util.response :as response]
             [immutant.web :as web]))
 
 (def users {"root" {:username "root"
@@ -67,13 +68,17 @@
   (json-response {:auth (friend/current-authentication) :id (friend/identity request)}))
 
 (def app (router
-  [(GET "/ping" ping)
-   (DELETE "/session" (friend/logout logout))
-   (POST "/session" login)
-   (GET "/session" (fn [request] (redirect "../s/login.html")))
-   (GET "/auth" current-authentication)
-   (GET "/user-only-ping" (friend/wrap-authorize ping [::user]))
-   (GET "/admin-only-ping" (friend/wrap-authorize ping [::admin]))]))
+  [(GET "/api/ping" ping)
+   (DELETE "/api/session" (friend/logout logout))
+   (POST "/api/session" login)
+   (GET "/api/session" (fn [request] (redirect "../s/login.html")))
+   (GET "/api/login" (fn [request] (redirect "../s/login.html")))
+   (GET "/api/auth" current-authentication)
+   (GET "/api/user-only-ping" (friend/wrap-authorize ping [::user]))
+   (GET "/api/admin-only-ping" (friend/wrap-authorize ping [::admin]))
+   (GET "/s/*" (-> not-found
+                   (ring-file/wrap-file "public/s/")
+                   (ring-file-info/wrap-file-info)))]))
 
 (def secure-app (-> app
   (friend/authenticate
@@ -85,5 +90,4 @@
                    :credential-fn (partial creds/bcrypt-credential-fn users))]})
   (ring-session/wrap-session)))
 
-(web/start "/api/" secure-app)
-(web/start "/s/" (ring-file/wrap-file not-found "public/s/"))
+(web/start "/" secure-app)

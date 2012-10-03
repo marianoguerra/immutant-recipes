@@ -5,5 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [
                  [ring-router "0.2-SNAPSHOT"]
-                 [com.cemerick/friend "0.1.0"]
+                 [com.cemerick/friend "0.1.2"]
                  [org.clojure/clojure "1.4.0"]])
