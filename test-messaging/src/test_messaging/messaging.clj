@@ -1,6 +1,6 @@
 (ns test-messaging.messaging)
 
-(def messages (ref []))
+(def messages (atom []))
 
 (defn publish [topic data]
-  (dosync (ref-set messages (conj @messages {:topic topic :data data}))))
+  (swap! messages conj {:topic topic :data data}))
