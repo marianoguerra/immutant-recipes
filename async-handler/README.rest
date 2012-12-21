@@ -1,0 +1,25 @@
+async request handler using servlet 3.0 async support
+=====================================================
+
+as of immutant 0.7.0 this example doesn't work since there is a
+line change that's required for it to work, the line change is this one
+if you want to build it at home::
+
+        diff --git a/modules/web/src/main/clojure/immutant/web/internal.clj b/modules/web/src/main/clojure/immutant/web/internal.clj
+        index 7c22412..68b4692 100644
+        --- a/modules/web/src/main/clojure/immutant/web/internal.clj
+        +++ b/modules/web/src/main/clojure/immutant/web/internal.clj
+        @@ -92,6 +92,7 @@
+                     (.setServletClass servlet-class)
+                     (.setEnabled true)
+                     (.setDynamic true)
+        +            (.setAsyncSupported true)
+                     (.setLoadOnStartup -1))
+                   (doto context
+                     (.addChild wrapper)
+
+follow this issue to know if this patch is needed https://issues.jboss.org/browse/IMMUTANT-114
+
+to run it, do lein immutant deploy and go to http://localhost:8080/async/
+
+the request will wait for 5 seconds and then reply finished.
