@@ -1,4 +1,4 @@
-(ns friend-acl.init
+(ns immutant.init
   (:use
     [ring.util.response :only (redirect)]
     ring-router.core
@@ -33,7 +33,7 @@
    :body "file not found"})
 
 (defn logout [request]
-  (redirect "../api/login"))
+  (redirect "../login.html"))
 
 (defn serve-file [file-path]
     (fn [request]
@@ -47,7 +47,7 @@
         :body (json-str data)})
 
 (defn login-failed [request]
-  (redirect "/friend-acl/api/login"))
+  (redirect "/friend-acl/login.html"))
 
 (defn ping [request]
   (json-response "pong"))
@@ -55,20 +55,25 @@
 (defn current-authentication [request]
   (json-response {:auth (friend/current-authentication) :id (friend/identity request)}))
 
-(def app (router
+(defn or-not-found [handler]
+  (fn [request]
+    (let [response (handler request)]
+      (if response
+        response
+        (not-found request)))))
+
+(def app (or-not-found (web/wrap-resource (router
   [(GET "/api/ping" ping)
-   (GET "/api/login" (ring-file-info/wrap-file-info (serve-file "public/s/login.html")))
+   (GET "/api/login" (redirect "../login.html"))
    (GET "/api/logout" (friend/logout logout))
    (GET "/api/auth" current-authentication)
    (GET "/api/user-only-ping" (friend/wrap-authorize ping [::user]))
-   (GET "/api/admin-only-ping" (friend/wrap-authorize ping [::admin]))
-   (GET "/s/*" (-> not-found
-                   (ring-file/wrap-file "public/s/")
-                   (ring-file-info/wrap-file-info)))]))
+   (GET "/api/admin-only-ping" (friend/wrap-authorize ping [::admin]))]) "/s/")))
 
 (def secure-app (-> app
   (friend/authenticate
-    {:login-uri "/friend-acl/api/login"
+    {:login-uri "/friend-acl/login.html"
+     :default-landing-uri "/friend-acl/login.html"
      :unauthorized-handler unauthorized-handler
      :workflows [(workflows/interactive-form
                    :login-uri "/friend-acl/api/login"
