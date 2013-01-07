@@ -1,4 +1,4 @@
-(defproject static-files "0.1.0-SNAPSHOT"
+(defproject static-files "0.2.0-SNAPSHOT"
   :description "example to serve static files on immutant"
   :url "http://gitub.com/marianoguerra/immutant-recipes/"
   :license {:name "Eclipse Public License"

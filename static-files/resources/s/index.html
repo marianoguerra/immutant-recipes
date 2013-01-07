@@ -1,0 +1,18 @@
+<html>
+ <head>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+ </head>
+ <body>
+  <h1>hello from static resource</h1>
+
+  <p id="container">making ajax request...</p>
+  <script>
+$(function () {
+ $.ajax({url: "api/ping", dataType: "text"})
+  .then(function (response) {
+   $("#container").html("result: " + response);
+  });
+});
+</script>
+ </body>
+</html>

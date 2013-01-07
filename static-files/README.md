@@ -8,21 +8,19 @@ clone it and then deploy it with
 
 	   lein immutant deploy
 
-visit http://localhost:8080/static-files/s/index.html
+visit http://localhost:8080/static-files/index.html
 
-you should see the content of the public/s/index.html file which is
+you should see the content of the resources/s/index.html file, it will
+also make an ajax request to /api/ping which should return "pong" and be
+displayed in the page
 
-	   hello from static resource 
-
-visit other page like http://localhost:8080/static-files/s/wat.html you should
+visit other page like http://localhost:8080/static-files/wat.html you should
 get the not found error
 
-    file not found
-
 visit the ping api url http://localhost:8080/static-files/api/ping and you should
-get a JSON response like
+get a response like
 
-    "pong"
+    pong
 
 ## License
 
