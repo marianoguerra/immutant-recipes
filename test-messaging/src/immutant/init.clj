@@ -1,4 +1,4 @@
-(ns test-messaging.init
+(ns immutant.init
   (:use ring-router.core)
   (:require
     [test-messaging.core :as core]
