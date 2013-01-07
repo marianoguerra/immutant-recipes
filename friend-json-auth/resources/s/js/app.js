@@ -13,7 +13,7 @@
 
         return $.ajax({
             type: "POST",
-            url: "../api/session",
+            url: "api/session",
             dataType: "json",
             contentType: "application/json",
             data: data
@@ -23,7 +23,7 @@
     function logout() {
         return $.ajax({
             type: "DELETE",
-            url: "../api/session"
+            url: "api/session"
         });
     }
 
@@ -80,7 +80,7 @@
         return $.ajax({
             type: "GET",
             dataType: "json",
-            url: "../api/auth"
+            url: "api/auth"
         })
             .done(onGetAuthDataOk)
             .error(onGetAuthDataError);

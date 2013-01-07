@@ -1,4 +1,4 @@
-(ns friend-json-auth.init
+(ns immutant.init
   (:use
     [ring.util.response :only (redirect)]
     [cemerick.friend.util :only (gets)]
@@ -30,7 +30,7 @@
 (defn not-found [request]
   {:status 404
    :header {"Content-Type" "text/plain"}
-   :body "file not found"})
+   :body "not found"})
 
 (defn json-response [data & [status]]
     {:status (or status 200)
@@ -67,18 +67,22 @@
 (defn current-authentication [request]
   (json-response {:auth (friend/current-authentication) :id (friend/identity request)}))
 
-(def app (router
+(defn or-not-found [handler]
+  (fn [request]
+    (let [response (handler request)]
+      (if response
+        response
+        (not-found request)))))
+
+(def app (or-not-found (web/wrap-resource (router
   [(GET "/api/ping" ping)
    (DELETE "/api/session" (friend/logout logout))
    (POST "/api/session" login)
-   (GET "/api/session" (fn [request] (redirect "../s/login.html")))
-   (GET "/api/login" (fn [request] (redirect "../s/login.html")))
+   (GET "/api/session" (fn [request] (redirect "../login.html")))
+   (GET "/api/login" (fn [request] (redirect "../login.html")))
    (GET "/api/auth" current-authentication)
    (GET "/api/user-only-ping" (friend/wrap-authorize ping [::user]))
-   (GET "/api/admin-only-ping" (friend/wrap-authorize ping [::admin]))
-   (GET "/s/*" (-> not-found
-                   (ring-file/wrap-file "public/s/")
-                   (ring-file-info/wrap-file-info)))]))
+   (GET "/api/admin-only-ping" (friend/wrap-authorize ping [::admin]))]) "/s/")))
 
 (def secure-app (-> app
   (friend/authenticate
