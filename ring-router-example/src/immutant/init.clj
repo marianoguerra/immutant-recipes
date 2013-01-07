@@ -1,4 +1,4 @@
-(ns ring-router-example.init
+(ns immutant.init
   (:use
     ring-router.core
     [clojure.data.json :only (read-json json-str)])
