@@ -4,6 +4,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [
+                 [ring/ring-core "1.1.7"]
                  [ring-router "0.2-SNAPSHOT"]
-                 [com.cemerick/friend "0.1.2"]
+                 [org.clojure/data.json "0.1.3"]
+                 [org.marianoguerra/friend-json-workflow "0.1.0"]
+                 [com.cemerick/friend "0.1.3"]
                  [org.clojure/clojure "1.4.0"]])

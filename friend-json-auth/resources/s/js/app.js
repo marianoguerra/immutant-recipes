@@ -20,6 +20,25 @@
         });
     }
 
+    function onGetAuthDataOk(authData) {
+        $("#auth-data").text(JSON.stringify(authData));
+    }
+
+    function onGetAuthDataError(response) {
+        alert("error getting auth data: " + response.responseText);
+        log(response);
+    }
+
+    function onGetAuthData() {
+        return $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "api/session"
+        })
+            .done(onGetAuthDataOk)
+            .error(onGetAuthDataError);
+    }
+
     function logout() {
         return $.ajax({
             type: "DELETE",
@@ -34,9 +53,9 @@
     }
 
     function onLoginError(response) {
-        alert("login error");
+        alert("login error: " + response.responseText);
         log(response);
-        onGetAuthData();
+        onGetAuthDataOk(null);
     }
 
     function onLogoutOk() {
@@ -67,29 +86,10 @@
             .fail(onLogoutError);
     }
 
-    function onGetAuthDataOk(authData) {
-        $("#auth-data").text(JSON.stringify(authData));
-    }
-
-    function onGetAuthDataError(response) {
-        alert("error getting auth data");
-        log(response);
-    }
-
-    function onGetAuthData() {
-        return $.ajax({
-            type: "GET",
-            dataType: "json",
-            url: "api/auth"
-        })
-            .done(onGetAuthDataOk)
-            .error(onGetAuthDataError);
-    }
-
     $(function () {
         username = $("#username");
         password = $("#password");
-        dologin = $("#dologin");
+        dologin  = $("#dologin");
         dologout = $("#dologout");
         getAuthDataButton = $("#getauthdata");
 
