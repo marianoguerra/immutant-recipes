@@ -16,13 +16,13 @@ login with user "jane" password "user\_password" or "root" and "admin\_password"
 login, logout, try invalid credentials, what you can visit the same urls as
 the friend-acl example on this repo.
 
-* visit http://localhost:8080/friend-json-auth/api/auth to see auth details
+* visit http://localhost:8080/friend-json-auth/api/session to see auth details
 * visit http://localhost:8080/friend-json-auth/api/ping to see a service anyone can access
 * visit http://localhost:8080/friend-json-auth/api/user-only-ping to see a service that only users with the "user" role can access (for example jane)
 * visit http://localhost:8080/friend-json-auth/api/admin-only-ping to see a service that only users with the "admin" role can access (for example root)
 
 ## License
 
-Copyright © 2012 marianoguerra
+Copyright © 2013 marianoguerra
 
 Distributed under the Eclipse Public License, the same as Clojure.
