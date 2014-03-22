@@ -3,7 +3,7 @@
             [clojure.tools.logging :as log])
   (:import [storm.immutant.java HornetQJmsProvider HornetQJmsConnectionType
             EventTupleProducer]
-           [backtype.storm StormSubmitter LocalCluster Constants]
+           [backtype.storm StormSubmitter LocalCluster Constants Config]
            [backtype.storm.contrib.jms JmsMessageProducer JmsProvider
             JmsTupleProducer]
            [javax.jms Session TextMessage Message]
@@ -54,6 +54,14 @@
  (.setJmsProvider proc-out-jms-provider)
  (.setJmsMessageProducer jms-message-producer))
 
+(defn now []
+  (.getTime (java.util.Date.)))
+
+(defspout tick-spout ["time"] {:params [ticker-sleep-ms] :prepare false}
+  [collector]
+  (Thread/sleep ticker-sleep-ms)
+  (emit-spout! collector [(now)]))
+
 (defn handle-tick [state tuple]
   (log/info "tick!"))
 
@@ -79,13 +87,22 @@
                  (handle-tick state tuple)
                  (handle-event collector state tuple))))))
 
+; Define the bolt that will do the work when a tick happens
+(defbolt do-periodically ["time"] [tuple collector]
+  (log/info "do-periodically got tuple" tuple)
+  (emit-bolt! collector [(now)]))
+
 ; Create the topology
 (defn mk-topology []
-  (topology
-   {"from-jms" (spout-spec from-jms-sprout :p 5)}
-   {"process" (bolt-spec {"from-jms" ["username" "channel"]}
-                                  process :p 5)
-    "to-jms" (bolt-spec {"process" :shuffle} to-jms-bolt :p 5)}))
+  (let [process-config (Config.)
+        process-bolt-spec (bolt-spec {"from-jms" ["username" "channel"]} process :p 5 :conf {TOPOLOGY-TICK-TUPLE-FREQ-SECS 1})]
+
+    (topology
+      {"from-jms" (spout-spec from-jms-sprout :p 5)
+       "ticker" (spout-spec (tick-spout 5000) :p 1)}
+      {"process" process-bolt-spec
+       "do-periodically" (bolt-spec {"ticker" :all} do-periodically :p 1)
+       "to-jms" (bolt-spec {"do-periodically" :shuffle} to-jms-bolt :p 5)})))
 
 (defn run-local! []
   (let [cluster (LocalCluster.)]
@@ -99,7 +116,7 @@
    name
    {TOPOLOGY-DEBUG true
     TOPOLOGY-WORKERS 3
-    TOPOLOGY-TICK-TUPLE-FREQ-SECS 5}
+    TOPOLOGY-TICK-TUPLE-FREQ-SECS 1}
    (mk-topology)))
 
 (defn -main

@@ -42,4 +42,4 @@
     (log/info "Received" event)))
 
 (msg/listen out-topic on-message-received)
-(jobs/schedule :send-events-to-jms send-events-to-jms :every 5000)
+(jobs/schedule :send-events-to-jms send-events-to-jms :every 15000)
